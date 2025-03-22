@@ -8,104 +8,70 @@ import json
 
 
 sampleinput={
-  "owner": "Udayraj123",
-  "repo": "OMRChecker",
+  "owner": "jamaljm",
+  "repo": "snapcv",
   "filteredFiles": [
     {
-      "name": "FUNDING.yml",
-      "path": ".github/FUNDING.yml",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/.github/FUNDING.yml"
+      "name": "components.json",
+      "path": "components.json",
+      "download_url": "https://raw.githubusercontent.com/jamaljm/snapcv/main/components.json"
     },
     {
-      "name": "pre-commit.yml",
-      "path": ".github/pre-commit.yml",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/.github/pre-commit.yml"
+      "name": "next.config.ts",
+      "path": "next.config.ts",
+      "download_url": "https://raw.githubusercontent.com/jamaljm/snapcv/main/next.config.ts"
     },
     {
-      "name": ".pre-commit-config.yaml",
-      "path": ".pre-commit-config.yaml",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/.pre-commit-config.yaml"
+      "name": "package-lock.json",
+      "path": "package-lock.json",
+      "download_url": "https://raw.githubusercontent.com/jamaljm/snapcv/main/package-lock.json"
     },
     {
-      "name": "main.py",
-      "path": "main.py",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/main.py"
+      "name": "package.json",
+      "path": "package.json",
+      "download_url": "https://raw.githubusercontent.com/jamaljm/snapcv/main/package.json"
     },
     {
-      "name": "evaluation.json",
-      "path": "samples/answer-key/using-csv/evaluation.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/answer-key/using-csv/evaluation.json"
+      "name": "sampl.json",
+      "path": "sampl.json",
+      "download_url": "https://raw.githubusercontent.com/jamaljm/snapcv/main/sampl.json"
     },
     {
-      "name": "template.json",
-      "path": "samples/answer-key/using-csv/template.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/answer-key/using-csv/template.json"
+      "name": "setup-latex.sh",
+      "path": "scripts/setup-latex.sh",
+      "download_url": "https://raw.githubusercontent.com/jamaljm/snapcv/main/scripts/setup-latex.sh"
     },
     {
-      "name": "evaluation.json",
-      "path": "samples/answer-key/weighted-answers/evaluation.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/answer-key/weighted-answers/evaluation.json"
+      "name": "Common_context.tsx",
+      "path": "src/Common_context.tsx",
+      "download_url": "https://raw.githubusercontent.com/jamaljm/snapcv/main/src/Common_context.tsx"
     },
     {
-      "name": "template.json",
-      "path": "samples/answer-key/weighted-answers/template.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/answer-key/weighted-answers/template.json"
+      "name": "route.ts",
+      "path": "src/app/api/checkSlug/route.ts",
+      "download_url": "https://raw.githubusercontent.com/jamaljm/snapcv/main/src/app/api/checkSlug/route.ts"
     },
     {
-      "name": "template.json",
-      "path": "samples/community/Antibodyy/template.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/community/Antibodyy/template.json"
+      "name": "route.ts",
+      "path": "src/app/api/getGithubWrap/route.ts",
+      "download_url": "https://raw.githubusercontent.com/jamaljm/snapcv/main/src/app/api/getGithubWrap/route.ts"
     },
     {
-      "name": "template.json",
-      "path": "samples/community/Sandeep-1507/template.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/community/Sandeep-1507/template.json"
-    },
-    {
-      "name": "template.json",
-      "path": "samples/community/Shamanth/template.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/community/Shamanth/template.json"
-    },
-    {
-      "name": "config.json",
-      "path": "samples/community/UPSC-mock/config.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/community/UPSC-mock/config.json"
-    },
-    {
-      "name": "evaluation.json",
-      "path": "samples/community/UPSC-mock/evaluation.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/community/UPSC-mock/evaluation.json"
-    },
-    {
-      "name": "template.json",
-      "path": "samples/community/UPSC-mock/template.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/community/UPSC-mock/template.json"
-    },
-    {
-      "name": "config.json",
-      "path": "samples/community/UmarFarootAPS/config.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/community/UmarFarootAPS/config.json"
-    },
-    {
-      "name": "evaluation.json",
-      "path": "samples/community/UmarFarootAPS/evaluation.json",
-      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/samples/community/UmarFarootAPS/evaluation.json"
+      "name": "route.ts",
+      "path": "src/app/api/getMetadata/route.ts",
+      "download_url": "https://raw.githubusercontent.com/jamaljm/snapcv/main/src/app/api/getMetadata/route.ts"
     }
   ],
   "issueDetails": {
-    "owner": "Udayraj123",
-    "repo": "OMRChecker",
-    "title": "[Environment] OpenCV NULL guiReceiver error during pre-commit testing.",
-    "description": "*Describe the bug\nWhile running pre-commit hooks and pytest for my application, I'm encountering an OpenCV error related to GUI functions.\n\nTo Reproduce\nSteps to reproduce the behavior:\n1. Make any changes in code.\n2. Run commands git add and pre-commit run -a (make sure pre-commit is installed).\n3. Commit changes by running git commit -m \"commit message\"\n\nScreenshots\n![Screenshot from 2024-10-03 20-23-30](https://github.com/user-attachments/assets/f0ed906b-26f1-436c-ac39-93201f049153)\n\n**Desktop (please complete the following information):**\n - OS: Ubuntu 24.04.1 LTS\n - Python version - 3.12.3\n - OpenCV version - 4.10.0",
-    "labels": [
-      "bug",
-      "good first issue",
-      "hacktoberfest",
-      "up-for-grabs",
-      "Easy"
-    ]
+    "description": "Please Add Skill Reordering for both resume and Portfolio \n",
+    "labels": [],
+    "owner": "jamaljm",
+    "repo": "snapcv",
+    "title": "Please Add Skill Reordering for both resume and Portfolio"
   }
 }
+
+
 issue_data=sampleinput['issueDetails']
 filtered_files=sampleinput['filteredFiles']
 async def main():
@@ -115,6 +81,11 @@ async def main():
     start_time=time.time()
     # Run the matching
     result = await matcher.match_files(issue_data, filtered_files)
+    repo=sampleinput["issueDetails"]["repo"]
+    des=sampleinput["issueDetails"]["description"]
+    result["repo"]=repo
+    result["description"]=des
+    result["issuenum"]=0
     end_time=time.time()
     elapsed_time=end_time-start_time
     print("Time taken :",elapsed_time)
