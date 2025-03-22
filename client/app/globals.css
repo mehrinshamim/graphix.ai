@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #000000;
+    --foreground: #171717;
+    --primary-green: #3c9a4e;
+    --light-green: #87b694;
+    --dark-green: #083c14;
+  }
+  
+  body {
+    @apply bg-black text-white min-h-screen;
+    background-attachment: fixed;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-noto: var(--font-noto);
+  --font-roboto: var(--font-roboto);
+  --font-urbansit: var(--font-urbanist);
+  --font-josefinSans: var(--font-josefinsans);
+  --font-oswald: var(--font-oswald);
+}
+
+@layer components {
+  .bg-radial-gradient {
+    background: radial-gradient(circle at 50% 10%, rgba(60, 154, 78, 0.4) 0%, transparent 70%);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #000000;
+    --foreground: #ededed;
+  }
+}
