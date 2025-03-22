@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, BookOpen, Users, Sparkles, GitBranch, Code2, FileText, Workflow } from 'lucide-react';
+import { ArrowRight, Sparkles, GitBranch, Code2, FileText, Workflow } from 'lucide-react';
 import {
   Card,
   CardHeader,
@@ -15,12 +15,8 @@ import {
 const Features = () => {
   const router = useRouter();
 
-  const handleFirst = () => {
+  const handleStart = () => {
     router.push('/guidance');
-  };
-
-  const handleSecond = () => {
-    router.push('/beginner');
   };
 
   return (
@@ -51,74 +47,33 @@ const Features = () => {
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Sparkles className="text-cyan-400 animate-pulse" size={24} />
             <span className="font-josefinSans text-sm uppercase tracking-wider text-cyan-300">
-              Powerful Features
+              Revolutionary Debugging Tool
             </span>
           </div>
-          <h1 className="font-noto text-4xl md:text-5xl font-extrabold text-white">
-            EXPLORE ISSUEWIZ FEATURES
+          <h1 className="font-noto text-4xl md:text-5xl font-extrabold text-white mb-8">
+            TRANSFORM YOUR DEBUGGING EXPERIENCE
           </h1>
-        </div>
-
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-         
-          {/* Feature Card 1 */}
-<Card className="group bg-white/5 border-cyan-500/20 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 hover:scale-105">
-  <CardHeader>
-    <div className="h-12 w-12 rounded-lg bg-cyan-500/20 flex items-center justify-center mb-4">
-      <BookOpen className="text-cyan-400" size={24} />
-    </div>
-    <CardTitle className="font-noto text-xl text-white/90">Issue-Specific Guidance</CardTitle>
-  </CardHeader>
-  <CardContent className="font-josefinSans text-white/60">
-    Paste a GitHub issue link to analyze files, identify potential fixes, and gain AI-powered explanations.  
-    Highlights critical files, suggests modifications, and guide users.
-  </CardContent>
-  <CardFooter>
-    <button
-     onClick={handleFirst}
-      className="font-josefinSans w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-6 py-3 rounded-xl
-      flex items-center justify-center space-x-2
-      hover:scale-105 transition-transform duration-300
-      shadow-xl hover:shadow-cyan-500/50
-      group"
-    >
-      <span>Get Started</span>
-      <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
-    </button>
-  </CardFooter>
-</Card>
-
-
-         
-{/* Feature Card 2 */}
-<Card className="group bg-white/5 border-cyan-500/20 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 hover:scale-105">
-  <CardHeader>
-    <div className="h-12 w-12 rounded-lg bg-cyan-500/20 flex items-center justify-center mb-4">
-      <Users className="text-cyan-400" size={24} />
-    </div>
-    <CardTitle className="font-noto text-xl text-white/90">Skill-Based Issue Recommendations</CardTitle>
-  </CardHeader>
-  <CardContent className="font-josefinSans text-white/60">
-    Designed for beginners or contributors unsure where to start, input your GitHub username and preferred repository. 
-    The AI recommends issues based on your skills .
-  </CardContent>
-  <CardFooter>
-    <button
-      onClick={handleSecond}
-      className="font-josefinSans w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-6 py-3 rounded-xl
-      flex items-center justify-center space-x-2
-      hover:scale-105 transition-transform duration-300
-      shadow-xl hover:shadow-cyan-500/50
-      group"
-    >
-      <span>Get Started</span>
-      <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
-    </button>
-  </CardFooter>
-</Card>
-
-
+          
+          <div className="max-w-3xl mx-auto bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-cyan-500/20">
+            <p className="text-lg text-white/80 leading-relaxed font-josefinSans mb-6">
+              Our platform revolutionizes debugging by leveraging AI-powered insights and visualizations. When an issue link is submitted, our NLP model analyzes the report and predicts the top three files most likely causing the error, along with their probability percentages. These insights are then transformed into dynamic mind maps using DALL·E, providing an intuitive graphical breakdown of each file. Developers can explore key components such as endpoints, modules, and dependencies through visually engaging, auto-generated diagrams.
+            </p>
+            <p className="text-cyan-400 font-josefinSans font-medium mb-8">
+              By merging AI-driven analysis with interactive mind maps, our tool simplifies issue tracking and accelerates debugging like never before.
+            </p>
+            
+            <button
+              onClick={handleStart}
+              className="font-josefinSans bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-8 py-4 rounded-xl
+              flex items-center justify-center space-x-2 mx-auto
+              hover:scale-105 transition-transform duration-300
+              shadow-xl hover:shadow-cyan-500/50
+              group text-lg"
+            >
+              <span>Get Started Now</span>
+              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={24} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

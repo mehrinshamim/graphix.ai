@@ -8,8 +8,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-noto: var(--font-noto);
+  --font-roboto: var(--font-roboto);
+  --font-urbansit: var(--font-urbanist);
+  --font-josefinSans: var(--font-josefinsans);
+  --font-oswald: var(--font-oswald);
 }
 
 @media (prefers-color-scheme: dark) {

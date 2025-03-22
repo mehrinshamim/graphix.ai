@@ -24,7 +24,7 @@ export default function Home() {
  
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B1A2E] via-[#12254A] to-[#0D1E3A] text-white flex items-center justify-center overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-[#0B1A2E] via-[#12254A] to-[#0D1E3A] text-white flex items-center justify-center overflow-hidden relative font-josefinSans">
      
       <div className="absolute inset-0 pointer-events-none opacity-10">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#0B1A2E_1px,transparent_1px),linear-gradient(to_bottom,#0B1A2E_1px,transparent_1px)] bg-[size:40px_40px]"></div>
