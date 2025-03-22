@@ -89,7 +89,7 @@ const fetchDetails = async (repoUrl: string) => {
     console.log(res);
 
     try {
-      const postResponse = await fetch('https://issuewiz.onrender.com/api/issues/match-keywords', {
+      const postResponse = await fetch('https://91fa-210-212-232-142.ngrok-free.app/api/models/match-keywords', {
         method: 'POST',
         mode: 'cors',
         headers: {
