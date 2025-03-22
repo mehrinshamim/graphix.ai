@@ -1,4 +1,13 @@
-{
+# test_run.py
+from model.matcher import IssueMatcher
+import time
+import asyncio
+import json
+
+# Sample test data
+
+
+sampleinput={
   "owner": "Udayraj123",
   "repo": "OMRChecker",
   "filteredFiles": [
@@ -97,3 +106,22 @@
     ]
   }
 }
+issue_data=sampleinput['issueDetails']
+filtered_files=sampleinput['filteredFiles']
+async def main():
+    # Initialize the matcher
+    matcher = IssueMatcher()
+    
+    start_time=time.time()
+    # Run the matching
+    result = await matcher.match_files(issue_data, filtered_files)
+    end_time=time.time()
+    elapsed_time=end_time-start_time
+    print("Time taken :",elapsed_time)
+    print(json.dumps(result,indent=4))
+    
+
+# Run the async function
+
+if __name__ == "__main__":
+    asyncio.run(main())
