@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import models
+from app.routers import models#,prompts
 
 app = FastAPI(
     title="TinkHack",
@@ -22,10 +22,12 @@ app.add_middleware(
 
 # Include routers
 app.include_router(models.router, prefix="/api/models", tags=["Models"])
+#app.include_router(prompts.router, prefix="/api/prompts", tags=["Prompts"])
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to TinkHack API!"}
+
 @app.get("/health", tags=["Health"])
 def health_check():
     return {"status": "Server is running!"}

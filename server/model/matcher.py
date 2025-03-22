@@ -112,7 +112,7 @@ class IssueMatcher:
             # Sort and return results
             matches.sort(key=lambda x: x['match_score'], reverse=True)
             result = {
-                "filename_matches": matches[:]
+                "filename_matches": matches[:3]
             }
 
             # Cache the result
