@@ -5,7 +5,7 @@ import time
 
 router = APIRouter()
 
-@router.post("/match-keywords", response_model=IssueAnalysisResponse)
+@router.post("/match-keywords")
 async def analyze_issue(request: IssueAnalysisRequest):
     try:
         # Initialize the matcher
@@ -22,12 +22,12 @@ async def analyze_issue(request: IssueAnalysisRequest):
         end_time = time.time()
         elapsed_time = end_time - start_time
         
-        return IssueAnalysisResponse(
-            elapsed_time=elapsed_time,
-            matches=result,
-            status="success",
-            message="Issue analysis completed successfully"
-        )
+        # Add additional fields to match test_run.py output
+        result["repo"] = request.issueDetails.repo
+        result["description"] = request.issueDetails.description
+        result["issuenum"] = 0
+
+        return result
     
     except Exception as e:
         raise HTTPException(

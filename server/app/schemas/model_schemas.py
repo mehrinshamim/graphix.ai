@@ -19,8 +19,14 @@ class IssueAnalysisRequest(BaseModel):
     filteredFiles: List[FileInfo]
     issueDetails: IssueDetails
 
+class FileMatch(BaseModel):
+    file_name: str
+    match_score: float
+    download_url: str
+
 class IssueAnalysisResponse(BaseModel):
-    elapsed_time: float
-    matches: dict
-    status: str
-    message: str
+    filename_matches: List[FileMatch]
+    overview: str
+    repo: str
+    description: str
+    issuenum: int = 0
