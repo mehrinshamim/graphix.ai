@@ -1,0 +1,27 @@
+{
+  "owner": "Udayraj123",
+  "repo": "OMRChecker",
+  "filteredFiles": [
+    {
+      "name": ".pre-commit-config.yaml",
+      "path": ".pre-commit-config.yaml",
+      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/.pre-commit-config.yaml"
+    },
+    {
+      "name": "main.py",
+      "path": "main.py",
+      "download_url": "https://raw.githubusercontent.com/Udayraj123/OMRChecker/master/main.py"
+    }
+  ],
+  "issueDetails": {
+    "title": "[feature]Validation errors for multi marked fields like roll number ",
+    "description": "This feature would be useful to separate out a bucket of OMR sheets which contain invalid identifiers like the roll number",
+    "labels": [
+      "bug",
+      "good first issue",
+      "hacktoberfest",
+      "up-for-grabs",
+      "Easy"
+    ]
+  }
+}
