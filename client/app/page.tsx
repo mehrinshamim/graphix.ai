@@ -21,11 +21,28 @@ export default function Home() {
   };
 
   const handleGetStarted = () => {
-    router.push('/get-started');
+    router.push('/guidance');
   };
 
   return (
-    <div className="min-h-screen bg-black shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center justify-center overflow-hidden relative ">
+    <div className="min-h-screen bg-black shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center justify-center overflow-hidden relative">
+      {/* Matrix Background */}
+      <div 
+        className="absolute inset-0 bg-black z-0" 
+        style={{
+          backgroundImage: "url('/assets/bgimg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.9
+        }}
+      >
+        {/* Fallback Matrix effect */}
+        <div className="absolute inset-0 bg-[#041105] opacity-80"></div>
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#00FF00_1px,transparent_1px),linear-gradient(to_bottom,#00FF00_1px,transparent_1px)] bg-[size:40px_40px] opacity-15"></div>
+        </div>
+      </div>
+
       {/* Background icons */}
       <div className="absolute top-20 right-20 opacity-20 max-md:hidden">
         <GitBranch size={100} className="text-green-400" />
