@@ -45,8 +45,9 @@ const RepositoryAnalyzer = () => {
           src="/assets/mindmap.png" 
           alt="Repository Mindmap" 
           layout="fill" 
-          objectFit="cover"
+          objectFit="fill"
           priority
+          quality={100}
         />
       </div>
 
