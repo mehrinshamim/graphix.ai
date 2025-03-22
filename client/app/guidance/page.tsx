@@ -1,10 +1,40 @@
 'use client';
 import React, { useState } from 'react';
-import { MessageSquare, GitBranch, Code2, Search, FileText, Workflow, Github } from 'lucide-react';
+import { GitBranch, Code2, Search, FileText, Workflow } from 'lucide-react';
+import fetchDetails from '../utils/fetch/issuerep_det';
 
 const RepositoryAnalyzer = () => {
   const [repoUrl, setRepoUrl] = useState('');
   const [githubUsername, setGithubUsername] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleAnalyze = async () => {
+    if (!repoUrl.trim()) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log('Fetching details for:', repoUrl);
+      const data = await fetchDetails(repoUrl);
+
+      if (data && data.matchedFiles) {
+        const urlParts = repoUrl.split('/');
+        const owner = urlParts[3];
+        const repo = urlParts[4];
+        const issueNumber = urlParts[6];
+
+        const issueResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`);
+        const issueData = await issueResponse.json();
+        // Handle the response data here
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0B1A2E] via-[#12254A] to-[#0D1E3A] p-8 relative overflow-hidden font-josefinSans">
@@ -40,7 +70,7 @@ const RepositoryAnalyzer = () => {
 
         <div className="space-y-6">
           {/* GitHub Username Input */}
-          <div className="relative"></div>
+          <div className="relative">
             <input
               type="text"
               value={githubUsername}
@@ -63,19 +93,31 @@ const RepositoryAnalyzer = () => {
             />
           </div>
           
+          {error && (
+            <div className="p-4 rounded-xl bg-red-500/20 border border-red-500/40 text-red-200">
+              {error}
+            </div>
+          )}
+          
           <button
-            onClick={() => console.log('Analyze clicked')}
-            disabled={!githubUsername.trim() || !repoUrl.trim()}
+            onClick={() => handleAnalyze()}
+            disabled={!githubUsername.trim() || !repoUrl.trim() || loading}
             className="w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-white py-4 rounded-xl
               hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-cyan-500/50
               disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center space-x-2 mt-10"
           >
-            <Search size={20} />
-            <span>Analyze Repository</span>
+            {loading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+            ) : (
+              <>
+                <Search size={20} />
+                <span>Analyze Repository</span>
+              </>
+            )}
           </button>
         </div>
       </div>
-   
+    </div>
   );
 };
 
