@@ -4,4 +4,5 @@ uvicorn
 httpx
 python-dotenv
 pydantic-settings
-tenacity
+openai
+ngrok

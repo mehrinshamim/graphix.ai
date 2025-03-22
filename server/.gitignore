@@ -1,7 +1,9 @@
 .env
 
 venv/
+testvenv
 model/venv/
+model/.env
 
 __pycache__/
 *.pyc
