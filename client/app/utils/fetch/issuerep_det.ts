@@ -107,6 +107,7 @@ const fetchDetails = async (repoUrl: string) => {
             owner: issueDetails.owner,
             repo: issueDetails.repo,
             title: issueDetails.title,
+            number: issueNumber,
             description: issueDetails.description,
             labels: issueDetails.labels
           } : null
