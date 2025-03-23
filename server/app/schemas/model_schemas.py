@@ -12,12 +12,15 @@ class IssueDetails(BaseModel):
     title: str
     description: str
     labels: List[str]
+    issuenum : Optional[int] = 0
+
 
 class IssueAnalysisRequest(BaseModel):
     owner: str
     repo: str
     filteredFiles: List[FileInfo]
     issueDetails: IssueDetails
+
 
 class FileMatch(BaseModel):
     file_name: str
@@ -30,3 +33,5 @@ class IssueAnalysisResponse(BaseModel):
     repo: str
     description: str
     issuenum: int = 0
+    owner: str
+
