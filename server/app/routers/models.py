@@ -25,7 +25,8 @@ async def analyze_issue(request: IssueAnalysisRequest):
         # Add additional fields to match test_run.py output
         result["repo"] = request.issueDetails.repo
         result["description"] = request.issueDetails.description
-        result["issuenum"] = 0
+        result["issuenum"] = request.issueDetails.issuenum
+        result["owner"] = request.issueDetails.owner
 
         return result
     
