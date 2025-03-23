@@ -1,7 +1,7 @@
 'use client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import React, { useState, useEffect, useMemo } from 'react';
-import Link from 'next/link';
+
 
 // PieChart component remains unchanged
 const PieChart = ({ percentage }: { percentage: number }) => {

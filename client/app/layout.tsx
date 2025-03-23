@@ -34,8 +34,8 @@ const noto=Noto_Sans_Cuneiform({
 });
 
 export const metadata: Metadata = {
-  title: "pixelPlay",
-  description: "your utlimate gaming platform",
+  title: "graphixAI",
+  description: "A web-based tool for generating mind maps from text files.",
 };
 
 export default function RootLayout({
