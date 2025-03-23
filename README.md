@@ -1,6 +1,6 @@
 # Grafix.AI 
 
-## Basic Details
+
 ### Team Name: Bonito Flakes
 
 
