@@ -1,6 +1,7 @@
 import { OpenAI } from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Fix: Change the function signature to match Next.js App Router requirements
 export async function POST(req: NextRequest) {
   if (req.method !== 'POST') {
     return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
     const prompt = generatePromptBasedOnFileType(fileName, fileExtension, content);
     
     const response = await openai.chat.completions.create({
-      model: "gpt-4-1106-preview",  // Updated to correct model name
+      model: "gpt-4-1106-preview",
       messages: [
         {
           role: "system",
@@ -35,9 +36,11 @@ export async function POST(req: NextRequest) {
     // Parse the structured response
     const parsedResult = parseAnalysisResult(analysisResult);
     
-    return NextResponse.json(parsedResult, { status: 200 });
+    // Fix: Use proper NextResponse format
+    return NextResponse.json(parsedResult);
   } catch (error) {
     console.error('Error analyzing file:', error);
+    // Fix: Use proper NextResponse format for error
     return NextResponse.json({ error: 'Error analyzing file' }, { status: 500 });
   }
 }
@@ -188,7 +191,6 @@ function parseAnalysisResult(result: string) {
     });
   }
   
-  console.log('Parsed Analysis:', { overview, branches });
   return {
     overview,
     branches
