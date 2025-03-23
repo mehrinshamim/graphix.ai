@@ -104,6 +104,8 @@ npm run dev
 The exported image
 ![5](https://github.com/user-attachments/assets/11d18050-464a-428c-bdf8-c87213b022ae)
 
+![6](https://github.com/user-attachments/assets/e0b50563-5955-4739-b695-a0d9b242b4d6)
+
 
 ### Project Demo
 #### Video
