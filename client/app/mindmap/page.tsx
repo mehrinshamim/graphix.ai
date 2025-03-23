@@ -64,7 +64,7 @@ export default function MindMapPage() {
       <div className="min-h-screen bg-black p-8">
         <button 
           onClick={goBack}
-          className="bg-[#075707]/20 hover:bg-[#075707]/40 text-[#075707] px-4 py-2 rounded-md mb-8 flex items-center transition-colors"
+          className="font-noto bg-[#075707]/20 hover:bg-[#075707]/40 text-[#075707] px-4 py-2 rounded-md mb-8 flex items-center transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
@@ -103,7 +103,7 @@ export default function MindMapPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#075707] font-mono">
+              <h1 className="font-noto text-2xl font-bold text-[#075707] font-mono">
                 {fileName.split('/').pop()} {/* Only show the file name, not the full path */}
               </h1>
               {downloadUrlParam && (
@@ -111,7 +111,7 @@ export default function MindMapPage() {
                   href={downloadUrlParam}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 text-sm hover:text-[#075707] transition-colors mt-1 inline-block"
+                  className="font-josefinSans text-gray-400 text-sm hover:text-[#075707] transition-colors mt-1 inline-block"
                 >
                   View Raw File →
                 </a>
@@ -129,7 +129,7 @@ export default function MindMapPage() {
       </div>
       
       {/* File Analysis: Overview */}
-      <div className="bg-[#0a0a0a] rounded-lg p-6 shadow-inner border border-gray-800 mb-6 max-w-4xl mx-auto">
+      <div className="font-noto bg-[#0a0a0a] rounded-lg p-6 shadow-inner border border-gray-800 mb-6 max-w-4xl mx-auto">
         <h2 className="text-xl font-bold text-[#075707] font-mono mb-4 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
@@ -137,13 +137,13 @@ export default function MindMapPage() {
           </svg>
           Overview
         </h2>
-        <div className="bg-black/50 p-4 rounded-md border border-gray-800">
-          <p className="text-gray-300">{fileAnalysis.overview}</p>
+        <div className="font-josefinSans bg-black/50 p-4 rounded-md border border-gray-800">
+          <p className="font-josefinSans text-gray-300">{fileAnalysis.overview}</p>
         </div>
       </div>
       
       {/* Mindmap */}
-      <div className="bg-[#0a0a0a] rounded-lg p-6 shadow-inner border border-gray-800 max-w-4xl mx-auto">
+      <div className="font-noto bg-[#0a0a0a] rounded-lg p-6 shadow-inner border border-gray-800 max-w-4xl mx-auto">
         <h2 className="text-xl font-bold text-[#075707] font-mono mb-4 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
