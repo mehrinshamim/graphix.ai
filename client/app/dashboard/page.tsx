@@ -1,10 +1,11 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
-import React, { Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useState, useEffect, useMemo } from 'react';
 
-// PieChart component for visualizing match scores
+
+// PieChart component remains unchanged
 const PieChart = ({ percentage }: { percentage: number }) => {
-  const circumference = 2 * Math.PI * 45; // 45 is the radius
+  const circumference = 2 * Math.PI * 45; 
   const strokeDashoffset = circumference * (1 - percentage);
   
   return (
@@ -16,7 +17,7 @@ const PieChart = ({ percentage }: { percentage: number }) => {
           cy="50" 
           r="45"
           fill="transparent"
-          stroke="#0a1f0a"  // Darker background green
+          stroke="#0a1f0a"
           strokeWidth="10"
         />
         {/* Foreground circle - the actual progress */}
@@ -25,14 +26,14 @@ const PieChart = ({ percentage }: { percentage: number }) => {
           cy="50" 
           r="45"
           fill="transparent"
-          stroke="#075707"  // Darker foreground green
+          stroke="#075707"
           strokeWidth="10"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
           transform="rotate(-90 50 50)"
           style={{
-            filter: "drop-shadow(0 0 6px rgba(7, 87, 7, 0.5))"  // Darker shadow
+            filter: "drop-shadow(0 0 6px rgba(7, 87, 7, 0.5))"
           }}
         />
       </svg>
@@ -45,7 +46,7 @@ const PieChart = ({ percentage }: { percentage: number }) => {
   );
 };
 
-// Format description function to parse and beautify the description text
+// Format description function remains unchanged
 const parseDescription = (description: string) => {
   if (!description) return { content: "No description available" };
   
@@ -80,27 +81,226 @@ const parseDescription = (description: string) => {
   return sections;
 };
 
+interface FileMatch {
+  file_name: string;
+  download_url: string;
+  match_score: number;
+}
+
+interface FileAnalysis {
+  overview: string;
+  branches: Array<{
+    name: string;
+    subBranches: string[];
+  }>;
+}
+
+// Generate a unique cache key based on repository and issue data
+const generateCacheKey = (data: any) => {
+  const repoInfo = data.repo || 'unknown';
+  const issueInfo = data.issueNumber || 'unknown';
+  return `mindmap-analyses-${repoInfo}-${issueInfo}`;
+};
+
 function DashboardContent() {
   const searchParams = useSearchParams();
-  const data = JSON.parse(decodeURIComponent(searchParams.get('data') || '{}'));
-  console.log("Data:", data);
+  const router = useRouter();
   
-  // Parse the description
-  const parsedDescription = parseDescription(data.description);
+  // Memoize the parsed data to prevent unnecessary re-parsing
+  const data = useMemo(() => {
+    const rawData = searchParams.get('data') || '{}';
+    try {
+      return JSON.parse(decodeURIComponent(rawData));
+    } catch (e) {
+      console.error('Error parsing data:', e);
+      return {};
+    }
+  }, [searchParams]);
+  
+  // Cache key for localStorage - based on repository and issue
+  const cacheKey = useMemo(() => generateCacheKey(data), [data]);
+  
+  // State to track file analysis status
+  const [fileAnalyses, setFileAnalyses] = useState<Record<string, FileAnalysis>>({});
+  const [isAnalyzing, setIsAnalyzing] = useState<Record<string, boolean>>({});
+  
+  // Function to check if we should regenerate analyses (e.g., on refresh or first load)
+  // This checks if the analyses were already generated and stored in localStorage
+  const shouldRegenerateAnalyses = () => {
+    // Get cached analyses from localStorage
+    let cachedAnalyses: Record<string, FileAnalysis> = {};
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        cachedAnalyses = JSON.parse(cached);
+        
+        // Check if we have analyses for all current files
+        if (data.filename_matches) {
+          const allFilesAnalyzed = data.filename_matches.every(
+            (match: FileMatch) => cachedAnalyses[match.file_name]
+          );
+          
+          if (allFilesAnalyzed) {
+            // We already have all analyses, use them
+            setFileAnalyses(cachedAnalyses);
+            
+            // Set all isAnalyzing flags to false
+            const analyzingState: Record<string, boolean> = {};
+            data.filename_matches.forEach((match: FileMatch) => {
+              analyzingState[match.file_name] = false;
+            });
+            setIsAnalyzing(analyzingState);
+            
+            return false; // No need to regenerate
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error reading from localStorage:', e);
+    }
+    
+    return true; // Should regenerate if we reach here
+  };
+  
+  // Parse the description once and memoize it
+  const parsedDescription = useMemo(() => {
+    return parseDescription(data.description);
+  }, [data.description]);
+
+  // Check if we need to generate mindmaps when component mounts or data changes
+  useEffect(() => {
+    if (data.filename_matches?.length > 0) {
+      // Initialize analyzing state for all files
+      const analyzingState: Record<string, boolean> = {};
+      data.filename_matches.forEach((match: FileMatch) => {
+        analyzingState[match.file_name] = true;
+      });
+      setIsAnalyzing(analyzingState);
+      
+      // Only generate mindmaps if needed
+      if (shouldRegenerateAnalyses()) {
+        generateAllMindmaps();
+      }
+    }
+  }, [data, cacheKey]); // Depend on data and cacheKey
+
+  // Function to fetch and analyze all files
+  const generateAllMindmaps = async () => {
+    if (!data.filename_matches) return;
+    
+    // Start with any cached analyses we might have
+    let analyses: Record<string, FileAnalysis> = {};
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        analyses = JSON.parse(cached);
+      }
+    } catch (e) {
+      console.error('Error reading from localStorage:', e);
+    }
+    
+    const fetchPromises = data.filename_matches.map(async (match: FileMatch) => {
+      // Skip if we already have an analysis for this file
+      if (analyses[match.file_name]) {
+        setIsAnalyzing(prev => ({
+          ...prev,
+          [match.file_name]: false
+        }));
+        return;
+      }
+      
+      try {
+        // Fetch file content
+        const response = await fetch(match.download_url);
+        const content = await response.text();
+        
+        // Analyze file content through API
+        const analysisResponse = await fetch('/api/mindmap', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fileName: match.file_name,
+            fileExtension: match.file_name.split('.').pop()?.toLowerCase() ?? '',
+            content
+          }),
+        });
+        
+        const analysisData = await analysisResponse.json();
+        
+        // Store the analysis
+        analyses[match.file_name] = analysisData;
+        
+        // Update localStorage after each file is processed
+        localStorage.setItem(cacheKey, JSON.stringify(analyses));
+        
+        // Update state to reflect analysis is complete for this file
+        setIsAnalyzing(prev => ({
+          ...prev,
+          [match.file_name]: false
+        }));
+      } catch (error) {
+        console.error(`Error processing file ${match.file_name}:`, error);
+        setIsAnalyzing(prev => ({
+          ...prev,
+          [match.file_name]: false
+        }));
+      }
+    });
+    
+    await Promise.all(fetchPromises);
+    
+    // Update state with all file analyses
+    setFileAnalyses(analyses);
+    console.log("All files processed and stored in state and localStorage");
+  };
+
+  // Function to navigate to mindmap view with analyses in URL params
+  const viewMindmap = (fileName: string, matchScore: number, downloadUrl: string) => {
+    // Check if analysis exists for this file
+    if (fileAnalyses[fileName]) {
+      // Pass file name, analysis, and additional params to the mindmap page
+      router.push(
+        `/mindmap?fileName=${encodeURIComponent(fileName)}&analysis=${encodeURIComponent(JSON.stringify(fileAnalyses[fileName]))}&matchScore=${matchScore}&downloadUrl=${encodeURIComponent(downloadUrl)}`
+      );
+    } else {
+      console.error(`Analysis not ready for ${fileName}`);
+      // Could show an error message to the user here
+    }
+  };
+
+  // Function to manually clear the cache (could be added as a button if needed)
+  const clearCache = () => {
+    localStorage.removeItem(cacheKey);
+    setFileAnalyses({});
+    
+    // Reset analyzing state
+    const analyzingState: Record<string, boolean> = {};
+    if (data.filename_matches) {
+      data.filename_matches.forEach((match: FileMatch) => {
+        analyzingState[match.file_name] = true;
+      });
+    }
+    setIsAnalyzing(analyzingState);
+    
+    // Regenerate mindmaps
+    generateAllMindmaps();
+  };
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Column - Matrix Background */}
+      {/* Left Column - Matrix Background (unchanged) */}
       <div className="w-1/2 relative overflow-hidden bg-black">
         {/* Matrix Background */}
-        <div className="absolute inset-0 bg-[#041105] opacity-80"></div>
+        <div className="absolute inset-0 bg-[#031503] opacity-85"></div>
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#075707_1px,transparent_1px),linear-gradient(to_bottom,#075707_1px,transparent_1px)] bg-[size:40px_40px] opacity-15"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#0a6b0a_1px,transparent_1px),linear-gradient(to_bottom,#0a6b0a_1px,transparent_1px)] bg-[size:40px_40px] opacity-25"></div>
         </div>
         
         {/* Matrix falling code effect */}
-        <div className="absolute top-0 left-0 w-full opacity-40">
-          <div className="font-mono text-[#075707] text-xs opacity-60 z-5 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full opacity-35">
+          <div className="font-mono text-[#0a6b0a] text-xs opacity-75 z-5 overflow-hidden">
             {Array.from({ length: 20 }).map((_, i) => (
               <div key={i} className="whitespace-nowrap" style={{ 
                 animation: `fall ${3 + Math.random() * 5}s linear ${Math.random() * 2}s infinite` 
@@ -115,21 +315,39 @@ function DashboardContent() {
           </div>
         </div>
         
-        {/* Content on the matrix background */}
-        <div className="relative z-10 p-12 flex flex-col h-full justify-center">
-          <div className="bg-black/70 backdrop-blur-sm rounded-2xl p-8 border border-[#075707]/30 shadow-xl shadow-[#075707]/10">
+        {/* Content on the matrix background (unchanged) */}
+        <div className="relative z-10 p-12 flex flex-col h-full justify-center overflow-y-auto">
+          <div className="bg-black/70 backdrop-blur-sm rounded-2xl p-8 border border-[#075707]/30 shadow-xl shadow-[#075707]/10 max-h-[80vh] overflow-y-auto">
+            {/* Scrollbar styling */}
+            <style jsx global>{`
+              .overflow-y-auto::-webkit-scrollbar {
+                width: 8px;
+              }
+              .overflow-y-auto::-webkit-scrollbar-track {
+                background: rgba(7, 87, 7, 0.1);
+                border-radius: 4px;
+              }
+              .overflow-y-auto::-webkit-scrollbar-thumb {
+                background: rgba(7, 87, 7, 0.3);
+                border-radius: 4px;
+              }
+              .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+                background: rgba(7, 87, 7, 0.5);
+              }
+            `}</style>
+            
             <div className="mb-6">
-              <h1 className="text-4xl font-bold font-mono text-[#075707] mb-2 tracking-wide">
+              <h1 className="font-noto text-4xl font-bold  text-[#075707] mb-2 tracking-wide">
                 {data.repo || "Repository"}
               </h1>
               <div className="h-1 w-1/3 bg-gradient-to-r from-[#075707] to-transparent rounded-full mb-6"></div>
             </div>
             
             <div className="prose prose-invert">
-              <h2 className="text-2xl font-mono font-semibold mb-4 text-gray-300 border-l-4 border-[#075707] pl-4">
+              <h2 className="text-2xl font-noto font-semibold mb-4 text-gray-300 border-l-4 border-[#075707] pl-4">
                 Overview
               </h2>
-              <p className="text-gray-300 leading-relaxed text-lg">
+              <p className="font-josefinSans text-gray-300 leading-relaxed text-lg">
                 {data.overview || "No overview available"}
               </p>
             </div>
@@ -143,12 +361,12 @@ function DashboardContent() {
                 </div>
               </div>
               <div>
-                <h3 className="text-[#075707] font-mono">Check out the repo:</h3>
+                <h3 className="font-josefinSans text-[#075707] font-mono">Check out the repo:</h3>
                 <a 
                   href={data.repoUrl || `https://github.com/${data.owner}/${data.repo}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 text-sm hover:text-[#075707] transition-colors"
+                  className="font-josefinSans text-gray-400 text-sm hover:text-[#075707] transition-colors"
                 >
                   {data.repoUrl || `https://github.com/${data.owner}/${data.repo}`}
                 </a>
@@ -163,14 +381,14 @@ function DashboardContent() {
         <div className="p-8 h-full">
           {/* Issue Details */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#075707] font-mono mb-6 flex items-center">
+            <h2 className="text-2xl font-bold text-[#075707] font-noto mb-6 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
               Issue Details
             </h2>
             
-            <div className="bg-[#0a0a0a] rounded-lg p-5 shadow-inner border border-gray-800">
+            <div className="font-josefinSans bg-[#0a0a0a] rounded-lg p-5 shadow-inner border border-gray-800">
               <div className="prose prose-invert">
                 {/* Dynamically render different sections based on the parsed description */}
                 <div className="space-y-4">
@@ -216,10 +434,9 @@ function DashboardContent() {
               </div>
             </div>
           </div>
-          
-          {/* Matched Files */}
+          {/* Matched Files List */}
           <div>
-            <h2 className="text-2xl font-bold text-[#075707] font-mono mb-6 flex items-center">
+            <h2 className="text-2xl font-bold text-[#075707] font-noto mb-6 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clipRule="evenodd" />
               </svg>
@@ -228,27 +445,36 @@ function DashboardContent() {
             
             <div className="bg-[#0a0a0a] rounded-lg p-5 shadow-inner border border-gray-800">
               <div className="space-y-4">
-                {data.filename_matches?.map((match: any, index: number) => (
-                  <div key={index} className="bg-[#0f0f0f] rounded-lg p-4 flex items-center justify-between hover:bg-[#075707]/20 transition-colors duration-200 border border-gray-800">
-                    <div className="flex items-center space-x-4">
-                      <div className="bg-[#075707]/40 p-2 rounded-lg">
+                {data.filename_matches?.map((match: FileMatch, index: number) => (
+                  <div key={index} className="bg-[#0f0f0f] rounded-lg p-4 flex items-start justify-between hover:bg-[#075707]/20 transition-colors duration-200 border border-gray-800">
+                    <div className="flex items-start space-x-4 flex-1 min-w-0">
+                      <div className="bg-[#075707]/40 p-2 rounded-lg flex-shrink-0 mt-1">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#075707]" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                         </svg>
                       </div>
-                      <div>
-                        <h3 className="text-gray-300 font-mono">{match.file_name}</h3>
-                        <a 
-                          href={match.download_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#52b152] hover:text-[#75d775] text-sm mt-1 inline-block font-mono transition-colors"
-                        >
-                          View File →
-                        </a>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-noto text-gray-300  break-all">
+                          {match.file_name}
+                        </h3>
+                        <div className="flex space-x-4 mt-1">
+                          <button
+                            onClick={() => viewMindmap(match.file_name, match.match_score, match.download_url)}
+                            disabled={isAnalyzing[match.file_name]}
+                            className={`text-sm inline-block font-josefinSans transition-colors ${
+                              isAnalyzing[match.file_name] 
+                                ? "text-gray-500 cursor-not-allowed" 
+                                : "text-[#52b152] hover:text-[#75d775] cursor-pointer"
+                            }`}
+                          >
+                            {isAnalyzing[match.file_name] ? "Generating Detailed View..." : "Detailed View →"}
+                          </button>
+                        </div>
                       </div>
                     </div>
-                    <PieChart percentage={match.match_score} />
+                    <div className="flex items-center">
+                      <PieChart percentage={match.match_score} />
+                    </div>
                   </div>
                 ))}
                 
@@ -262,26 +488,8 @@ function DashboardContent() {
           </div>
         </div>
       </div>
-      
-      {/* CSS for animation */}
-      <style jsx global>{`
-        @keyframes fall {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(1000%); }
-        }
-      `}</style>
     </div>
   );
 }
 
-export default function Dashboard() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-[#075707] text-xl font-mono">Loading...</div>
-      </div>
-    }>
-      <DashboardContent />
-    </Suspense>
-  );
-}
+export default DashboardContent;
