@@ -1,8 +1,9 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
-import React, { Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 
-// PieChart component for visualizing match scores
+// PieChart component for visualizing match scores (unchanged)
 const PieChart = ({ percentage }: { percentage: number }) => {
   const circumference = 2 * Math.PI * 45; // 45 is the radius
   const strokeDashoffset = circumference * (1 - percentage);
@@ -45,7 +46,7 @@ const PieChart = ({ percentage }: { percentage: number }) => {
   );
 };
 
-// Format description function to parse and beautify the description text
+// Format description function (unchanged)
 const parseDescription = (description: string) => {
   if (!description) return { content: "No description available" };
   
@@ -80,17 +81,112 @@ const parseDescription = (description: string) => {
   return sections;
 };
 
+interface FileMatch {
+  file_name: string;
+  download_url: string;
+  match_score: number;
+}
+
+interface FileAnalysis {
+  overview: string;
+  branches: Array<{
+    name: string;
+    subBranches: string[];
+  }>;
+}
+
 function DashboardContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const data = JSON.parse(decodeURIComponent(searchParams.get('data') || '{}'));
   console.log("Data:", data);
+  
+  // State for file analysis results - will be stored in localStorage
+  const [isAnalyzing, setIsAnalyzing] = useState<Record<string, boolean>>({});
   
   // Parse the description
   const parsedDescription = parseDescription(data.description);
 
+  // Add useEffect to fetch file content when component mounts
+  useEffect(() => {
+    if (!data.filename_matches || data.filename_matches.length === 0) return;
+    
+    // Check if we already have analyses stored for this issue in localStorage
+    const issueId = data.issue_number || `${data.owner}-${data.repo}-issue`;
+    const storedAnalyses = localStorage.getItem(`issue-${issueId}-analyses`);
+    
+    if (storedAnalyses) {
+      console.log("Found stored analyses, no need to fetch again");
+      return;
+    }
+    
+    // Initialize analyzing state for each file
+    const analyzingState: Record<string, boolean> = {};
+    data.filename_matches.forEach((match: FileMatch) => {
+      analyzingState[match.file_name] = true;
+    });
+    setIsAnalyzing(analyzingState);
+    
+    // Fetch and analyze each file
+    const analyses: Record<string, FileAnalysis> = {};
+    
+    const fetchAllFiles = async () => {
+      const fetchPromises = data.filename_matches.map(async (match: FileMatch) => {
+        try {
+          // Fetch file content
+          const response = await fetch(match.download_url);
+          const content = await response.text();
+          
+          // Analyze file content
+          const analysisResponse = await fetch('/api/mindmap', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              fileName: match.file_name,
+              fileExtension: match.file_name.split('.').pop()?.toLowerCase() ?? '',
+              content
+            }),
+          });
+          
+          const analysisData = await analysisResponse.json();
+          analyses[match.file_name] = analysisData;
+          
+          // Update analyzing state
+          setIsAnalyzing(prev => ({
+            ...prev,
+            [match.file_name]: false
+          }));
+        } catch (error) {
+          console.error(`Error processing file ${match.file_name}:`, error);
+          setIsAnalyzing(prev => ({
+            ...prev,
+            [match.file_name]: false
+          }));
+        }
+      });
+      
+      await Promise.all(fetchPromises);
+      
+      // Store analyses in localStorage
+      localStorage.setItem(`issue-${issueId}-analyses`, JSON.stringify(analyses));
+      localStorage.setItem(`issue-${issueId}-data`, JSON.stringify(data));
+      
+      console.log("All files processed and stored");
+    };
+    
+    fetchAllFiles();
+  }, [data]);
+
+  // Function to navigate to mindmap view
+  const viewMindmap = (fileName: string) => {
+    router.push(`/mindmap?fileName=${encodeURIComponent(fileName)}`);
+  };
+
   return (
     <div className="min-h-screen flex">
-      {/* Left Column - Matrix Background */}
+      {/* Left Column - Matrix Background (unchanged) */}
       <div className="w-1/2 relative overflow-hidden bg-black">
         {/* Matrix Background */}
         <div className="absolute inset-0 bg-[#041105] opacity-80"></div>
@@ -115,7 +211,7 @@ function DashboardContent() {
           </div>
         </div>
         
-        {/* Content on the matrix background */}
+        {/* Content on the matrix background (unchanged) */}
         <div className="relative z-10 p-12 flex flex-col h-full justify-center">
           <div className="bg-black/70 backdrop-blur-sm rounded-2xl p-8 border border-[#075707]/30 shadow-xl shadow-[#075707]/10">
             <div className="mb-6">
@@ -216,8 +312,7 @@ function DashboardContent() {
               </div>
             </div>
           </div>
-          
-          {/* Matched Files */}
+          {/* Matched Files List */}
           <div>
             <h2 className="text-2xl font-bold text-[#075707] font-mono mb-6 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" viewBox="0 0 20 20" fill="currentColor">
@@ -228,7 +323,7 @@ function DashboardContent() {
             
             <div className="bg-[#0a0a0a] rounded-lg p-5 shadow-inner border border-gray-800">
               <div className="space-y-4">
-                {data.filename_matches?.map((match: any, index: number) => (
+                {data.filename_matches?.map((match: FileMatch, index: number) => (
                   <div key={index} className="bg-[#0f0f0f] rounded-lg p-4 flex items-center justify-between hover:bg-[#075707]/20 transition-colors duration-200 border border-gray-800">
                     <div className="flex items-center space-x-4">
                       <div className="bg-[#075707]/40 p-2 rounded-lg">
@@ -238,17 +333,32 @@ function DashboardContent() {
                       </div>
                       <div>
                         <h3 className="text-gray-300 font-mono">{match.file_name}</h3>
-                        <a 
-                          href={match.download_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#52b152] hover:text-[#75d775] text-sm mt-1 inline-block font-mono transition-colors"
-                        >
-                          View File →
-                        </a>
+                        <div className="flex space-x-4 mt-1">
+                          <a 
+                            href={match.download_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#52b152] hover:text-[#75d775] text-sm inline-block font-mono transition-colors"
+                          >
+                            View Raw →
+                          </a>
+                          <button
+                            onClick={() => viewMindmap(match.file_name)}
+                            className="text-[#52b152] hover:text-[#75d775] text-sm inline-block font-mono transition-colors"
+                          >
+                            View Mindmap →
+                          </button>
+                        </div>
                       </div>
                     </div>
-                    <PieChart percentage={match.match_score} />
+                    <div className="flex items-center">
+                      {isAnalyzing[match.file_name] && (
+                        <div className="mr-4 text-[#075707] text-sm animate-pulse">
+                          Analyzing...
+                        </div>
+                      )}
+                      <PieChart percentage={match.match_score} />
+                    </div>
                   </div>
                 ))}
                 
@@ -262,26 +372,8 @@ function DashboardContent() {
           </div>
         </div>
       </div>
-      
-      {/* CSS for animation */}
-      <style jsx global>{`
-        @keyframes fall {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(1000%); }
-        }
-      `}</style>
     </div>
   );
 }
 
-export default function Dashboard() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-[#075707] text-xl font-mono">Loading...</div>
-      </div>
-    }>
-      <DashboardContent />
-    </Suspense>
-  );
-}
+export default DashboardContent;
