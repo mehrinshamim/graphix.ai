@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import fetchDetails from '../utils/fetch/issuerep_det';
 
 const RepositoryAnalyzer = () => {
@@ -9,6 +10,7 @@ const RepositoryAnalyzer = () => {
   const [githubUsername, setGithubUsername] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleAnalyze = async () => {
     if (!repoUrl.trim()) return;
@@ -19,17 +21,9 @@ const RepositoryAnalyzer = () => {
     try {
       console.log('Fetching details for:', repoUrl);
       const data = await fetchDetails(repoUrl);
-
-      if (data && data.matchedFiles) {
-        const urlParts = repoUrl.split('/');
-        const owner = urlParts[3];
-        const repo = urlParts[4];
-        const issueNumber = urlParts[6];
-
-        const issueResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`);
-        const issueData = await issueResponse.json();
-        // Handle the response data here
-      }
+      
+      // Navigate to dashboard with the response data
+      router.push(`/dashboard?data=${encodeURIComponent(JSON.stringify(data))}`);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An unexpected error occurred' as any);
     } finally {
@@ -127,10 +121,7 @@ const RepositoryAnalyzer = () => {
           {/* Form Fields */}
           <div className="w-full max-w-md space-y-8">
             {/* GitHub Username Input */}
-            <div className="space-y-2">
-              <label className="font-josefinSans block text-white text-xl font-medium mb-2">
-                Github Username
-              </label>
+            <div className="space-y-2 ">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
