@@ -7,6 +7,7 @@ export default function MindMapPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const fileName = searchParams.get('fileName');
+  const analysisParam = searchParams.get('analysis');
   
   interface FileAnalysis {
     overview: string;
@@ -15,17 +16,14 @@ export default function MindMapPage() {
       subBranches: string[];
     }>;
   }
-  const [fileAnalysis, setFileAnalysis] = useState<FileAnalysis | null>(null);
-  interface IssueData {
-    filename_matches: Array<{
-      file_name: string;
-      match_score: number;
-      download_url: string;
-    }>;
-  }
   
-  const [issueData, setIssueData] = useState<IssueData | null>(null);
+  const [fileAnalysis, setFileAnalysis] = useState<FileAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Get file match details from URL parameters if available
+  const matchScoreParam = searchParams.get('matchScore');
+  const downloadUrlParam = searchParams.get('downloadUrl');
 
   useEffect(() => {
     if (!fileName) {
@@ -33,45 +31,25 @@ export default function MindMapPage() {
       return;
     }
 
-    // Find the latest analysis storage for this file
-    const storedItem = Object.keys(localStorage)
-      .filter(key => key.endsWith('-analyses'))
-      .sort()
-      .reverse()
-      .find(key => {
-        const analyses = JSON.parse(localStorage.getItem(key) || '{}');
-        return analyses[fileName];
-      });
-
-    if (!storedItem) {
-      setIsLoading(false);
-      return;
+    // Parse the analysis data from URL parameters
+    if (analysisParam) {
+      try {
+        const parsedAnalysis = JSON.parse(decodeURIComponent(analysisParam));
+        setFileAnalysis(parsedAnalysis);
+      } catch (err) {
+        console.error('Failed to parse analysis data:', err);
+        setError('Failed to load mindmap data. Please go back and try again.');
+      }
+    } else {
+      setError('No analysis data provided. Please go back and try again.');
     }
-
-    // Get the analyses and corresponding issue data
-    const allAnalyses = JSON.parse(localStorage.getItem(storedItem) || '{}');
-    const foundAnalysis = allAnalyses[fileName];
-    const dataKey = storedItem.replace('-analyses', '-data');
-    const issueData = JSON.parse(localStorage.getItem(dataKey) || '{}');
-
-    if (foundAnalysis) {
-      setFileAnalysis(foundAnalysis);
-      setIssueData(issueData);
-    }
+    
     setIsLoading(false);
-  }, [fileName, router]);
+  }, [fileName, analysisParam, router]);
 
   const goBack = () => {
     router.back();
   };
-
-  // Get the file match data for the current file
-  const getFileMatch = () => {
-    if (!issueData || !issueData.filename_matches) return null;
-    return issueData.filename_matches.find(match => match.file_name === fileName) || null;
-  };
-
-  const fileMatch = getFileMatch();
 
   if (isLoading) {
     return (
@@ -81,7 +59,7 @@ export default function MindMapPage() {
     );
   }
 
-  if (!fileAnalysis || !fileName) {
+  if (error || !fileAnalysis || !fileName) {
     return (
       <div className="min-h-screen bg-black p-8">
         <button 
@@ -95,7 +73,7 @@ export default function MindMapPage() {
         </button>
         <div className="bg-[#0a0a0a] rounded-lg p-8 shadow-inner border border-gray-800">
           <div className="text-gray-500 text-center py-6">
-            Analysis not found for this file. Please go back and try again.
+            {error || "Analysis not found for this file. Please go back and try again."}
           </div>
         </div>
       </div>
@@ -116,7 +94,7 @@ export default function MindMapPage() {
       </button>
       
       {/* File header */}
-      <div className="bg-[#0a0a0a] rounded-lg p-6 shadow-inner border border-gray-800 mb-6">
+      <div className="bg-[#0a0a0a] rounded-lg p-6 shadow-inner border border-gray-800 mb-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="bg-[#075707]/40 p-3 rounded-lg">
@@ -125,10 +103,12 @@ export default function MindMapPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#075707] font-mono">{fileName}</h1>
-              {fileMatch && (
+              <h1 className="text-2xl font-bold text-[#075707] font-mono">
+                {fileName.split('/').pop()} {/* Only show the file name, not the full path */}
+              </h1>
+              {downloadUrlParam && (
                 <a 
-                  href={fileMatch.download_url}
+                  href={downloadUrlParam}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-400 text-sm hover:text-[#075707] transition-colors mt-1 inline-block"
@@ -139,16 +119,17 @@ export default function MindMapPage() {
             </div>
           </div>
           
-          {fileMatch && (
-            <div className="text-gray-300 font-mono">
-              <span className="text-[#075707]">Match Score:</span> {(fileMatch.match_score * 100).toFixed(1)}%
+          {matchScoreParam && (
+            <div className="text-gray-300 font-mono text-right">
+              <div className="text-[#075707]">Match Score</div>
+              <div>{parseFloat(matchScoreParam).toFixed(1)}%</div>
             </div>
           )}
         </div>
       </div>
       
       {/* File Analysis: Overview */}
-      <div className="bg-[#0a0a0a] rounded-lg p-6 shadow-inner border border-gray-800 mb-6">
+      <div className="bg-[#0a0a0a] rounded-lg p-6 shadow-inner border border-gray-800 mb-6 max-w-4xl mx-auto">
         <h2 className="text-xl font-bold text-[#075707] font-mono mb-4 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
@@ -162,7 +143,7 @@ export default function MindMapPage() {
       </div>
       
       {/* Mindmap */}
-      <div className="bg-[#0a0a0a] rounded-lg p-6 shadow-inner border border-gray-800">
+      <div className="bg-[#0a0a0a] rounded-lg p-6 shadow-inner border border-gray-800 max-w-4xl mx-auto">
         <h2 className="text-xl font-bold text-[#075707] font-mono mb-4 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />

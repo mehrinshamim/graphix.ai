@@ -26,7 +26,7 @@ const MindMap: React.FC<MindMapProps> = ({ fileName, analysis }) => {
 
   return (
     <div className="bg-[#0f0f0f] rounded-lg p-4 border border-gray-800">
-      <h3 className="text-xl font-semibold text-[#075707] mb-4 font-mono">{fileName}</h3>
+      
       
      
       
