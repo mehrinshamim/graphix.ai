@@ -110,6 +110,6 @@ The exported image
 ### Project Demo
 #### Video
 [ Graphix.ai - Bonito Flakes TinkHack 2.0 ](https://www.youtube.com/watch?v=m6mXxGlzNJ8)
-Brief walkthrough of Grafix.AI in action.![5](https://github.com/user-attachments/assets/6e6a2c5b-5e17-46d7-8e08-e28862c8f8b1)
+Brief walkthrough of Grafix.AI in action.
 
 
